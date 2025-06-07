@@ -126,10 +126,6 @@ const App: () => JSX.Element = () => {
           {fullTranscript} <span className="opacity-50">{caption}</span>
         </div>
       </div>
-
-      <div className="absolute bottom-[8rem] inset-x-0 max-w-4xl mx-auto text-center">
-        {caption && <span className="bg-black/70 p-8">{caption}</span>}
-      </div>
     </div>
   );
 };
