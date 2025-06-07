@@ -18,6 +18,8 @@ const App: () => JSX.Element = () => {
   const [caption, setCaption] = useState<string | undefined>(
     "Powered by Deepgram"
   );
+
+  const [fullTranscript, setFullTranscript] = useState<string>("");
   const { connection, connectToDeepgram, connectionState } = useDeepgram();
   const { setupMicrophone, microphone, startMicrophone, microphoneState } =
     useMicrophone();
@@ -56,15 +58,16 @@ const App: () => JSX.Element = () => {
 
     const onTranscript = (data: LiveTranscriptionEvent) => {
       const { is_final: isFinal, speech_final: speechFinal } = data;
-      let thisCaption = data.channel.alternatives[0].transcript;
+      let temporaryTranscript = data.channel.alternatives[0].transcript;
 
-      console.log("thisCaption", thisCaption);
-      if (thisCaption !== "") {
-        console.log('thisCaption !== ""', thisCaption);
-        setCaption(thisCaption);
-      }
+      setCaption(temporaryTranscript);
 
       if (isFinal && speechFinal) {
+        console.log(fullTranscript);
+        setCaption(undefined);
+        setFullTranscript(
+          (prevTranscript) => prevTranscript + temporaryTranscript + " "
+        );
         clearTimeout(captionTimeout.current);
         captionTimeout.current = setTimeout(() => {
           setCaption(undefined);
@@ -113,7 +116,17 @@ const App: () => JSX.Element = () => {
 
   return (
     <div className="relative w-full h-full">
-      {microphone && <Visualizer microphone={microphone} />}
+      <div className="absolute bottom-0 left-0 w-full h-40">
+        {microphone && <Visualizer microphone={microphone} />}
+      </div>
+
+      <div className="absolute top-0 left-0 w-full h-full bg-black/30 p-8">
+        Transcript
+        <div>
+          {fullTranscript} <span className="opacity-50">{caption}</span>
+        </div>
+      </div>
+
       <div className="absolute bottom-[8rem] inset-x-0 max-w-4xl mx-auto text-center">
         {caption && <span className="bg-black/70 p-8">{caption}</span>}
       </div>
